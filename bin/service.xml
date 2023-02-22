@@ -1,0 +1,9 @@
+<service>
+    <id>Clash Core Service</id>
+    <name>Clash Core Service</name>
+    <description>Clash Core Service started</description>
+    <executable>clash-core</executable>
+    <arguments>-d %BASE%</arguments>
+    <startmode>Manual</startmode>
+    <log mode="none"></log>
+</service>

@@ -1,0 +1,24 @@
+{
+  "name": "ewkuai",
+  "version": "1.0.0",
+  "main": "main.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "electron ."
+  },
+  "keywords": [],
+  "author": "ewkuai",
+  "license": "ISC",
+  "description": "Ewkuai Client",
+  "devDependencies": {
+    "electron": "^23.1.0",
+    "electron-debug": "^1.5.0",
+    "electron-devtools-installer": "^2.2.4"
+  },
+  "dependencies": {
+    "electron-debug": "^1.5.0",
+    "electron-devtools-installer": "^2.2.4",
+    "js-yaml": "^4.1.0",
+    "request": "^2.88.2"
+  }
+}
