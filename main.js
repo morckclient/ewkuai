@@ -27,32 +27,28 @@ const service_config = path.join(home_dir, 'service.xml')
 const service_run = path.join(home_dir, 'service.exe')
 const wintun = path.join(home_dir, 'wintun.dll')
 const clash_core_win = path.join(home_dir, 'clash-core.exe')
+const clash_core_mac = path.join(home_dir, 'clash-core')
 const service_log = path.join(home_dir, 'service.wrapper.log')
 const mmdb = path.join(home_dir, 'Country.mmdb')
 
 const i18n = path.join(__dirname, 'config/i18n')
-//const flag = path.join(__dirname, 'assets/img/flag')
-const service_core = path.join(__dirname, 'bin/clash-core.exe')
-const clash_core_mac = path.join(__dirname, 'bin/clash-core')
-const sysproxy = path.join(__dirname, 'bin/sysproxy.exe')
-const service_bin_exe = path.join(__dirname, 'bin/service.exe')
-const service_bin_xml = path.join(__dirname, 'bin/service.xml')
-const bin_wintun = path.join(__dirname, 'bin/wintun.dll')
-const bin_clash_config = path.join(__dirname, 'bin/config.yaml')
-const bin_mmdb = path.join(__dirname, 'bin/Country.mmdb')
+const flag = path.join(__dirname, 'assets/img/flag')
+const service_core = path.join(__dirname, '/bin/clash-core.exe')
+const service_core_mac = path.join(__dirname, '/bin/clash-core')
+const sysproxy = path.join(__dirname, '/bin/sysproxy.exe')
+const mac_proxy = path.join(__dirname, '/bin/system_proxy')
+const service_bin_exe = path.join(__dirname, '/bin/service.exe')
+const service_bin_xml = path.join(__dirname, '/bin/service.xml')
+const bin_wintun = path.join(__dirname, '/bin/wintun.dll')
+const bin_clash_config = path.join(__dirname, '/bin/config.yaml')
+const bin_mmdb = path.join(__dirname, '/bin/Country.mmdb')
 
 function mk_home_dir(home_dir) {
     exists(home_dir, function (exists) {
         if (!exists) {
             mkdir(home_dir, () => {
             });
-            // closeSync(openSync(vertif, 'w'))
-            // copy service
-            if (process.platform === 'darwin') {
-                //
-            } else {
-                copy_service()
-            }
+            copy_service()
         }
     });
 }
@@ -99,25 +95,27 @@ function mk_setting_file(path) {
 }
 
 function copy_service() {
-    if (process.platform === 'darwin') {
-    } else {
-        exists(home_dir, function (exists) {
-            if (exists) {
-                cp(bin_clash_config, clash_config, () => {
+    exists(home_dir, function (exists) {
+        if (exists) {
+            cp(bin_clash_config, clash_config, () => {
+            });
+            cp(bin_mmdb, mmdb, () => {
+            });
+            if (process.platform === 'darwin') {
+                cp(service_core_mac, clash_core_mac, () => {
                 });
-                cp(bin_mmdb, mmdb, () => {
-                });
+            } else {
                 cp(service_core, clash_core_win, () => {
                 });
-                cp(service_bin_exe, service_run, () => {
-                });
-                cp(service_bin_xml, service_config, () => {
-                });
-                cp(bin_wintun, wintun, () => {
-                });
             }
-        })
-    }
+            cp(service_bin_exe, service_run, () => {
+            });
+            cp(service_bin_xml, service_config, () => {
+            });
+            cp(bin_wintun, wintun, () => {
+            });
+        }
+    })
 }
 
 mk_home_dir(home_dir)
@@ -173,12 +171,7 @@ function createWindow(windowTitle, iconPath) {
             }, {
                 label: '退出',
                 click: () => {
-                    if (process.platform === 'darwin') {
-                        exec('killall -9 clash-core', function () {
-                        });
-                    } else {
-                        exit_all();
-                    }
+                    exit_all();
                     app.quit();
                 }
             }
@@ -416,18 +409,19 @@ app.whenReady().then(() => {
 
     ipcMain.on('system:sysProxyOn', (event, args) => {
         if (process.platform === 'darwin') {
-            exec('', () => {
-            });
+            let sysproxy_args = mac_proxy + ''
+            exec(sysproxy_args, () => {});
         } else {
             let sysproxy_cmd = sysproxy + ' global 127.0.0.1:' + args + ' localhost;127.*;10.*;172.16.*;172.17.*;172.18.*;172.19.*;172.20.*;172.21.*;172.22.*;172.23.*;172.24.*;172.25.*;172.26.*;172.27.*;172.28.*;172.29.*;172.30.*;172.31.*;192.168.*'
-            exec(sysproxy_cmd, () => {
-            });
+            exec(sysproxy_cmd, function (err, stdout, stderr) {
+            })
         }
     })
 
     ipcMain.on('system:sysProxyOff', (event) => {
         if (process.platform === 'darwin') {
-            exec('', () => {
+            let sysproxy_args = mac_proxy + ''
+            exec(sysproxy_args, () => {
             });
         } else {
             exec(sysproxy + ' off', () => {
@@ -486,7 +480,7 @@ app.whenReady().then(() => {
     })
 
     ipcMain.handle('config:getFlagName', (event) => {
-        //return read_dir(flag)
+        return read_dir(flag)
     })
 
     ipcMain.handle('login:getAccount', (event) => {
@@ -778,9 +772,13 @@ app.whenReady().then(() => {
     })
 
     ipcMain.on('core:start', () => {
-        let core_path = path.join(home_dir, 'clash-core')
-        execFile(core_path, ['-d', home_dir], () => {
-        })
+        if (process.platform === 'darwin') {
+            execFile(clash_core_mac, ['-d', home_dir], () => {
+            })
+        } else {
+            execFile(clash_core_win, ['-d', home_dir], () => {
+            })
+        }
     })
 
     ipcMain.on('core:stop', () => {
@@ -842,7 +840,7 @@ app.whenReady().then(() => {
                 resolve(response.statusCode)
             });
 
-            request.on('error', (e) => {
+            request.on('error', () => {
 
             });
 
@@ -883,11 +881,7 @@ app.whenReady().then(() => {
         return new Promise((resolve, reject) => {
             let url = 'http://127.0.0.1:9090/proxies/' + args
             core_get(url, (result) => {
-                if (result['status_code'] === 200) {
-                    resolve(result)
-                } else {
-                    resolve(result)
-                }
+                resolve(result['now']);
             })
         })
     })
@@ -896,11 +890,7 @@ app.whenReady().then(() => {
         return new Promise((resolve, reject) => {
             let url = 'http://127.0.0.1:9090/providers/proxies'
             core_get(url, (result) => {
-                if (result['status_code'] === 200) {
-                    resolve(result)
-                } else {
-                    resolve(result)
-                }
+                resolve(result);
             })
         })
     })
@@ -1078,10 +1068,18 @@ app.on('will-quit', () => {
 })
 
 function exit_all() {
-    exec('taskkill /f /im clash-core.exe', () => {
-    });
-    exec(sysproxy + ' off', () => {
-    });
-    exec(service_run + ' stop')
-    exec(service_run + ' uninstall')
+    if (process.platform !== 'darwin') {
+        exec('taskkill /f /im clash-core.exe', () => {
+        });
+        exec(sysproxy + ' off', () => {
+        });
+        exec(service_run + ' stop')
+        exec(service_run + ' uninstall')
+    } else {
+        exec('killall -m clash-core', () => {
+        });
+        let sysproxy_args = mac_proxy + ''
+        exec(sysproxy_args, () => {
+        });
+    }
 }
