@@ -663,7 +663,6 @@ function menu_page() {
     document.body.appendChild(menu_div);
 
     window.indexAPI.getUserInfo().then((result) => {
-        console.log(result)
         document.getElementById('user-mail').innerHTML = '<img src="assets/img/y/icon7.png" style="height: 15px;"><img src="assets/img/y/jiantou.png" style="margin-left: 10px;height: 12px;margin-right: 10px;">' + result['info']['user']['email'];
         document.getElementById('user-wallet').innerHTML = '<img src="assets/img/y/iconx8.png" style="height: 15px;"><img src="assets/img/y/jiantou.png" style="margin-left: 10px;height: 12px;margin-right: 10px;">' + `${result['info']['user']['money']}元`;
         let date = new Date(result['info']['user']['expire_in']);

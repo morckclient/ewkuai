@@ -1,4 +1,4 @@
-const {app, BrowserWindow, Menu, globalShortcut, Tray, ipcMain, net, session} = require('electron')
+const {app, BrowserWindow, Menu, globalShortcut, Tray, ipcMain, net, session, nativeImage} = require('electron')
 const {exists, mkdir, writeFile, readdir, cp, readFileSync, writeFileSync, unlink, createWriteStream} = require('fs');
 const os = require('os');
 const path = require('path');
@@ -9,6 +9,11 @@ const https = require("https");
 app.on('ready', () => {
     session.defaultSession.setProxy({proxyRules: 'direct://'})
 })  // 让Electron直连所有地址,不使用系统代理
+
+const prompt_options = {
+    name: 'Ewkuai',
+    icns: path.join(__dirname, 'config/ewkuai.icns'),
+}
 
 const sys_path = os.homedir()
 let home_dir
@@ -104,16 +109,19 @@ function copy_service() {
             if (process.platform === 'darwin') {
                 cp(service_core_mac, clash_core_mac, () => {
                 });
+                let cmd = `chmod 777 ${clash_core_mac}`
+                prompt.exec(cmd, prompt_options, () => {
+                });
             } else {
                 cp(service_core, clash_core_win, () => {
                 });
+                cp(service_bin_exe, service_run, () => {
+                });
+                cp(service_bin_xml, service_config, () => {
+                });
+                cp(bin_wintun, wintun, () => {
+                });
             }
-            cp(service_bin_exe, service_run, () => {
-            });
-            cp(service_bin_xml, service_config, () => {
-            });
-            cp(bin_wintun, wintun, () => {
-            });
         }
     })
 }
@@ -122,6 +130,85 @@ mk_home_dir(home_dir)
 mk_setting_file(setting)
 unlink(service_log, () => {
 })
+
+function sys_proxy(status, port) {
+    const enable_proxy_cmd = `sudo networksetup -setwebproxy "USB 10/100/1000 LAN" 127.0.0.1 ${port};
+    sudo networksetup -setsecurewebproxy "USB 10/100/1000 LAN" 127.0.0.1 ${port};
+    sudo networksetup -setsocksfirewallproxy "USB 10/100/1000 LAN" 127.0.0.1 ${port};
+    sudo networksetup -setproxybypassdomains "USB 10/100/1000 LAN" *.local、169.254/16、10.24;
+    sudo networksetup -setwebproxy "Wi-Fi" 127.0.0.1 ${port};
+    sudo networksetup -setsecurewebproxy "Wi-Fi" 127.0.0.1 ${port};
+    sudo networksetup -setsocksfirewallproxy "Wi-Fi" 127.0.0.1 ${port};
+    sudo networksetup -setproxybypassdomains "Wi-Fi" *.local、169.254/16、10.24;
+    sudo networksetup -setwebproxy "Bluetooth PAN" 127.0.0.1 ${port};
+    sudo networksetup -setsecurewebproxy "Bluetooth PAN" 127.0.0.1 ${port};
+    sudo networksetup -setsocksfirewallproxy "Bluetooth PAN" 127.0.0.1 ${port};
+    sudo networksetup -setproxybypassdomains "Bluetooth PAN" *.local、169.254/16、10.24;
+    sudo networksetup -setwebproxy "Thunderbolt Bridge" 127.0.0.1 ${port};
+    sudo networksetup -setsecurewebproxy "Thunderbolt Bridge" 127.0.0.1 ${port};
+    sudo networksetup -setsocksfirewallproxy "Thunderbolt Bridge" 127.0.0.1 ${port};
+    sudo networksetup -setproxybypassdomains "Thunderbolt Bridge" *.local、169.254/16、10.24
+    `;
+
+    const enable_proxy_cmd_1 = `networksetup -setwebproxy "USB 10/100/1000 LAN" 127.0.0.1 ${port};
+    networksetup -setsecurewebproxy "USB 10/100/1000 LAN" 127.0.0.1 ${port};
+    networksetup -setsocksfirewallproxy "USB 10/100/1000 LAN" 127.0.0.1 ${port};
+    networksetup -setproxybypassdomains "USB 10/100/1000 LAN" *.local、169.254/16、10.24;
+    networksetup -setwebproxy "Wi-Fi" 127.0.0.1 ${port};
+    networksetup -setsecurewebproxy "Wi-Fi" 127.0.0.1 ${port};
+    networksetup -setsocksfirewallproxy "Wi-Fi" 127.0.0.1 ${port};
+    networksetup -setproxybypassdomains "Wi-Fi" *.local、169.254/16、10.24;
+    networksetup -setwebproxy "Bluetooth PAN" 127.0.0.1 ${port};
+    networksetup -setsecurewebproxy "Bluetooth PAN" 127.0.0.1 ${port};
+    networksetup -setsocksfirewallproxy "Bluetooth PAN" 127.0.0.1 ${port};
+    networksetup -setproxybypassdomains "Bluetooth PAN" *.local、169.254/16、10.24;
+    networksetup -setwebproxy "Thunderbolt Bridge" 127.0.0.1 ${port};
+    networksetup -setsecurewebproxy "Thunderbolt Bridge" 127.0.0.1 ${port};
+    networksetup -setsocksfirewallproxy "Thunderbolt Bridge" 127.0.0.1 ${port};
+    networksetup -setproxybypassdomains "Thunderbolt Bridge" *.local、169.254/16、10.24
+    `;
+
+
+    const disable_proxy_cmd = `sudo networksetup -setwebproxystate "USB 10/100/1000 LAN" off;
+    sudo networksetup -setsecurewebproxystate "USB 10/100/1000 LAN" off;
+    sudo networksetup -setsocksfirewallproxystate "USB 10/100/1000 LAN" off;
+    sudo networksetup -setwebproxystate "Wi-Fi" off;
+    sudo networksetup -setsecurewebproxystate "Wi-Fi" off;
+    sudo networksetup -setsocksfirewallproxystate "Wi-Fi" off;
+    sudo networksetup -setwebproxystate "Bluetooth PAN" off;
+    sudo networksetup -setsecurewebproxystate "Bluetooth PAN" off;
+    sudo networksetup -setsocksfirewallproxystate "Bluetooth PAN" off;
+    sudo networksetup -setwebproxystate "Thunderbolt Bridge" off;
+    sudo networksetup -setsecurewebproxystate "Thunderbolt Bridge" off;
+    sudo networksetup -setsocksfirewallproxystate "Thunderbolt Bridge" off
+    `;
+
+    const disable_proxy_cmd_1 = `networksetup -setwebproxystate "USB 10/100/1000 LAN" off;
+    networksetup -setsecurewebproxystate "USB 10/100/1000 LAN" off;
+    networksetup -setsocksfirewallproxystate "USB 10/100/1000 LAN" off;
+    networksetup -setwebproxystate "Wi-Fi" off;
+    networksetup -setsecurewebproxystate "Wi-Fi" off;
+    networksetup -setsocksfirewallproxystate "Wi-Fi" off;
+    networksetup -setwebproxystate "Bluetooth PAN" off;
+    networksetup -setsecurewebproxystate "Bluetooth PAN" off;
+    networksetup -setsocksfirewallproxystate "Bluetooth PAN" off;
+    networksetup -setwebproxystate "Thunderbolt Bridge" off;
+    networksetup -setsecurewebproxystate "Thunderbolt Bridge" off;
+    networksetup -setsocksfirewallproxystate "Thunderbolt Bridge" off
+    `;
+
+    if (status) {
+        exec(enable_proxy_cmd_1, () => {
+        });
+        exec(enable_proxy_cmd, () => {
+        });
+    } else {
+        exec(disable_proxy_cmd_1, () => {
+        });
+        exec(disable_proxy_cmd, () => {
+        });
+    }
+}
 
 function createWindow(windowTitle, iconPath) {
     // Hide window top menu
@@ -136,10 +223,6 @@ function createWindow(windowTitle, iconPath) {
         resizable: false,   //不允许用户改变窗口大小
         icon: iconPath,
         titleBarStyle: 'hidden',
-        trafficLightPosition: {    // MacOS下自定义红绿灯位置
-            x: 10,
-            y: 10
-        },
         webPreferences: {
             devTools: true,
             backgroundThrottling: true,   //设置应用在后台正常运行
@@ -154,12 +237,27 @@ function createWindow(windowTitle, iconPath) {
     // Open the DevTools.
     mainWindow.webContents.openDevTools();
 
-    let tray = new Tray(iconPath);
+    let image;
+    if (process.platform === 'darwin') {
+        image = nativeImage.createFromPath(path.join(__dirname, 'config/ewkuaiTemplate@2x.png'));
+        image.setTemplateImage(true);
+        app.dock.hide();
+        mainWindow.setWindowButtonVisibility(false);
+    } else {
+        image = iconPath;
+    }
+    let tray = new Tray(image);
     tray.setToolTip(windowTitle);
 
-    tray.on('double-click', () => {       //点击图标的响应事件，这里是切换主窗口的显示和隐藏
-        mainWindow.show();
-    })
+    if (process.platform === 'darwin') {
+        tray.on('click', () => {       //点击图标的响应事件，这里是切换主窗口的显示和隐藏
+            mainWindow.show()
+        })
+    } else {
+        tray.on('double-click', () => {       //点击图标的响应事件，这里是切换主窗口的显示和隐藏
+            mainWindow.show()
+        })
+    }
 
     tray.on('right-click', () => {    //右键点击图标时，出现的菜单，通过Menu.buildFromTemplate定制。
         const menuConfig = Menu.buildFromTemplate([
@@ -409,20 +507,17 @@ app.whenReady().then(() => {
 
     ipcMain.on('system:sysProxyOn', (event, args) => {
         if (process.platform === 'darwin') {
-            let sysproxy_args = mac_proxy + ''
-            exec(sysproxy_args, () => {});
+            sys_proxy(true, args);
         } else {
             let sysproxy_cmd = sysproxy + ' global 127.0.0.1:' + args + ' localhost;127.*;10.*;172.16.*;172.17.*;172.18.*;172.19.*;172.20.*;172.21.*;172.22.*;172.23.*;172.24.*;172.25.*;172.26.*;172.27.*;172.28.*;172.29.*;172.30.*;172.31.*;192.168.*'
-            exec(sysproxy_cmd, function (err, stdout, stderr) {
-            })
+            exec(sysproxy_cmd, () => {
+            });
         }
     })
 
     ipcMain.on('system:sysProxyOff', (event) => {
         if (process.platform === 'darwin') {
-            let sysproxy_args = mac_proxy + ''
-            exec(sysproxy_args, () => {
-            });
+            sys_proxy(false)
         } else {
             exec(sysproxy + ' off', () => {
             });
@@ -502,7 +597,7 @@ app.whenReady().then(() => {
                 let cookie = '';
                 if (result['ret'] !== 0) {
                     let cookies = result['cookie'];
-                    for(let item of cookies) {
+                    for (let item of cookies) {
                         cookie += item.split(';')[0] + ';';
                     }
                     writeFileSync(auth, cookie, 'utf-8');
@@ -559,7 +654,14 @@ app.whenReady().then(() => {
 
     ipcMain.handle('login:register', (event, args) => {
         //let postData = 'email=' + args[0] + '&name=' + args[1] + '&passwd=' + args[2] + '&repasswd=' + args[3] + '&code=0&emailcode=' + args[4];
-        let postData = JSON.stringify({'email': args[0], 'name': args[1], 'passwd': args[2], 'repasswd': args[3], 'code': '0', 'emailcode': args[4]});
+        let postData = JSON.stringify({
+            'email': args[0],
+            'name': args[1],
+            'passwd': args[2],
+            'repasswd': args[3],
+            'code': '0',
+            'emailcode': args[4]
+        });
         return new Promise((resolve, reject) => {
             let url = domainUrl + '/auth/register'
             req_post(url, postData, 'application/json', (result) => {
@@ -657,11 +759,17 @@ app.whenReady().then(() => {
             req_get_content(sub_url).then((data) => {
                 let y2j = yaml.load(data)
                 let server_name = [];
-                for (let i = 0; i < y2j['proxies'].length; i ++) {
+                for (let i = 0; i < y2j['proxies'].length; i++) {
                     server_name.push(y2j['proxies'][i]['name']);
                 }
                 y2j['proxy-groups'][0]['proxies'].unshift('自动选择');
-                y2j['proxy-groups'].unshift({'name': '自动选择', 'type': 'url-test', 'proxies': server_name, 'url': 'http://www.gstatic.com/generate_204', 'interval': 86400 });
+                y2j['proxy-groups'].unshift({
+                    'name': '自动选择',
+                    'type': 'url-test',
+                    'proxies': server_name,
+                    'url': 'http://www.gstatic.com/generate_204',
+                    'interval': 86400
+                });
                 y2j['log-level'] = 'silent'
                 y2j['profile'] = {'store-selected': true}
                 y2j['auto-redir'] = {'enable': true, 'auto-route': true}
@@ -1076,10 +1184,8 @@ function exit_all() {
         exec(service_run + ' stop')
         exec(service_run + ' uninstall')
     } else {
+        sys_proxy(false);
         exec('killall -m clash-core', () => {
-        });
-        let sysproxy_args = mac_proxy + ''
-        exec(sysproxy_args, () => {
         });
     }
 }
