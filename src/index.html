@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
+    <title>Ewkuai</title>
+    <link rel="stylesheet" href="assets/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="assets/css/styles.css">
+    <link rel="stylesheet" href="./styles.css">
+    <script src="assets/js/lottie.min.js"></script>
+    <script src="assets/js/lottie-player.js"></script>
+    <script src="assets/js/lottie-interactivity.min.js"></script>
+    <style>
+        a, p, span, input, button {
+            -webkit-user-select: none;
+            -webkit-app-region: no-drag;
+        }
+    </style>
+</head>
+
+<body style="overflow:hidden; -webkit-app-region: drag;">
+<div id="header-close" class="header-close close-black" style="margin-top: 8px;">
+    <button style="border: none; background: url(assets/img/mini-fill.png);width:24px;height:24px; margin-right: 10px;"
+            onclick="mini_win()">
+    </button>
+    <button style="border: none; background: url(assets/img/close-fill.png);width:24px;height:24px; margin-right: 10px;"
+            onclick="exit_win()">
+    </button>
+</div>
+<div class="banner_bg">
+    <div class="img_home" style="-webkit-app-region: drag;"></div>
+</div>
+<div class="home_box">
+    <div class="button-box">
+        <button class="btn btn-box btn-register" type="button" onclick="sign_up_page()">注册</button>
+    </div>
+    <div class="button-box" style="text-align: center;">
+        <button id="login" class="btn btn-box btn-login" type="button" onclick="login_page()">登录</button>
+    </div>
+</div>
+<footer class="text-center footer-box">
+    <div class="client-box"><img class="img_home_client" src="assets/img/img_home_client.png" width="336" height="22">
+    </div>
+</footer>
+</body>
+<script src="./renderer.js"></script>
+<script src="assets/js/sweetalert.min.js"></script>
+<script src="assets/bootstrap/js/bootstrap.min.js"></script>
+</html>
