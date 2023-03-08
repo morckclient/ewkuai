@@ -1,16 +1,24 @@
 {
   "name": "ewkuai",
   "version": "1.0.0",
-  "main": "main.js",
+  "main": "src/main.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "electron ."
+    "start": "electron-forge start",
+    "package": "electron-forge package",
+    "make": "electron-forge make"
   },
   "keywords": [],
   "author": "ewkuai",
   "license": "ISC",
+  "build": {},
   "description": "Ewkuai Client",
   "devDependencies": {
+    "@electron-forge/cli": "^6.0.5",
+    "@electron-forge/maker-deb": "^6.0.5",
+    "@electron-forge/maker-rpm": "^6.0.5",
+    "@electron-forge/maker-squirrel": "^6.0.5",
+    "@electron-forge/maker-zip": "^6.0.5",
+    "@electron-forge/plugin-auto-unpack-natives": "^6.0.5",
     "electron": "^23.1.0",
     "electron-debug": "^1.5.0",
     "electron-devtools-installer": "^2.2.4"
@@ -18,6 +26,7 @@
   "dependencies": {
     "electron-debug": "^1.5.0",
     "electron-devtools-installer": "^2.2.4",
+    "electron-squirrel-startup": "^1.0.0",
     "js-yaml": "^4.1.0",
     "request": "^2.88.2"
   }
