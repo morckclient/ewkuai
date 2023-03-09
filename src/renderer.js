@@ -608,10 +608,10 @@ function menu_page(state) {
         '            <div><img id="back-btn" src="assets/img/iconx19.png" style="height: 40px;-webkit-app-region: no-drag;" onclick="back_home()"></div>\n' +
         '            <div style="margin-top: 15px;display: flex;">\n' +
         '                <div style="float: left;width: 60%;">\n' +
-        '                    <p id="user-mail" class="d-flex align-items-center"><img src="assets/img/y/icon7.png" style="height: 15px;"><img src="assets/img/y/jiantou.png" style="margin-left: 10px;height: 12px;margin-right: 10px;">unknow@com</p>\n' +
+        '                    <p id="user-mail" class="d-flex align-items-center"><img src="assets/img/y/icon7.png" style="height: 15px;"><img src="assets/img/y/jiantou.png" style="margin-left: 10px;height: 12px;margin-right: 10px;"></p>\n' +
         '                </div>\n' +
         '                <div style="float: left;margin-left: 5%">\n' +
-        '                    <p id="user-wallet" style="white-space: nowrap;"><img src="assets/img/y/iconx8.png" style="height: 15px;"><img src="assets/img/y/jiantou.png" style="margin-left: 10px;height: 12px;margin-right: 10px;">0元</p>\n' +
+        '                    <p id="user-wallet" style="white-space: nowrap;"><img src="assets/img/y/iconx8.png" style="height: 15px;"><img src="assets/img/y/jiantou.png" style="margin-left: 10px;height: 12px;margin-right: 10px;"></p>\n' +
         '                </div>\n' +
         '            </div>\n' +
         '        </div>\n' +
@@ -621,7 +621,7 @@ function menu_page(state) {
         '                    <div class="row">\n' +
         '                        <div class="col-8 col-md-9 col-lg-9 col-xl-9 col-xxl-10">\n' +
         '                            <div class="d-flex d-sm-flex align-items-center align-items-sm-center text-input">\n' +
-        '                                <p id="user-expire" class="d-flex align-items-center" style="margin: 0;font-size: 15px;"><img src="assets/img/iconx9.png" style="float: left;width: 32px;margin-left: 10px;margin-right: 10px;">到期：0000年00月00日</p>\n' +
+        '                                <p id="user-expire" class="d-flex align-items-center" style="margin: 0;font-size: 15px;"><img src="assets/img/iconx9.png" style="float: left;width: 32px;margin-left: 10px;margin-right: 10px;">到期：</p>\n' +
         '                            </div>\n' +
         '                        </div>\n' +
         '                        <div class="col-4 col-md-3 col-lg-3 col-xl-3 col-xxl-2"><button id="shop" class="btn btn-primary btn-box btn-yan" type="button" style="font-size: 1.2rem;" onclick="click_menu(this)">续费</button></div>\n' +
@@ -1000,9 +1000,9 @@ function shop() {
                 }
             }
         }
-        for (let i = 0; i < list.length; i ++) {
+        for (let i = 0; i < list.length; i++) {
             if (!list[i]['name'].includes('流量包')) {
-                index ++;
+                index++;
                 let list_div = document.createElement('div');
                 list_div.className = 'col-6 col-md-6';
                 let list_div_u = document.createElement('div');
@@ -1016,7 +1016,7 @@ function shop() {
                 let list_ul = document.createElement('ul');
                 list_ul.setAttribute('style', 'color: rgba(0,0,0,0.5);padding-left: 15px;margin-top: 12px;');
                 let list_content = JSON.parse(list[i]['content'])['content_extra'].replaceAll('check-', '').split(';');
-                for (let x = 0; x < list_content.length; x ++) {
+                for (let x = 0; x < list_content.length; x++) {
                     let li = document.createElement('li');
                     li.innerText = list_content[x];
                     list_ul.appendChild(li);
@@ -1033,9 +1033,10 @@ function shop() {
 
 let price;
 let shop_id;
+
 function select_plan(obj) {
     let box = document.getElementsByClassName('shop-box');
-    for (let i = 0; i < box.length; i ++) {
+    for (let i = 0; i < box.length; i++) {
         box[i].className = 'shop-box';
         box[i].getElementsByTagName('ul')[0].style.color = 'rgba(0,0,0,0.5)';
     }
@@ -1046,6 +1047,7 @@ function select_plan(obj) {
 }
 
 let type;
+
 function select_payment(obj) {
     type = obj.className
     document.getElementById('alipay').className = 'alipay';
@@ -1053,7 +1055,7 @@ function select_payment(obj) {
     obj.className = `${obj.className}-active`;
 }
 
-function buy_wallet (state) {
+function buy_wallet(state) {
     window.indexAPI.payWallet(shop_id).then((result) => {
         if (result['ret'] === 1) {
             Swal.fire({
@@ -1138,7 +1140,15 @@ function buy() {
                         }
                     }, 1000);
                 } else {
-                    Swal.close();
+                    Swal.fire({
+                        text: '支付时发生错误！',
+                        width: '220px',
+                        timer: 1500,
+                        showConfirmButton: false,
+                        backdrop: `
+                            rgba(0,0,0,0.4)
+                        `
+                    });
                 }
             } else {
                 Swal.fire({

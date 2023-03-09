@@ -28,9 +28,6 @@ const setting = path.join(home_dir, 'setting')
 const clash_config = path.join(home_dir, 'config.yaml')
 const new_config = path.join(home_dir, 'new_config.yaml')
 const global_config = path.join(home_dir, 'global_config.yaml')
-const service_config = path.join(home_dir, 'service.xml')
-const service_run = path.join(home_dir, 'service.exe')
-const wintun = path.join(home_dir, 'wintun.dll')
 const clash_core_win = path.join(home_dir, 'clash-core.exe')
 const clash_core_mac = path.join(home_dir, 'clash-core')
 const service_log = path.join(home_dir, 'service.wrapper.log')
@@ -38,14 +35,11 @@ const mmdb = path.join(home_dir, 'Country.mmdb')
 
 const i18n = path.join(__dirname, 'config/i18n')
 const flag = path.join(__dirname, 'assets/img/flag')
-const service_core = path.join(__dirname, '../bin/clash-core.exe')
-const service_core_mac = path.join(__dirname, '../bin/clash-core')
-const sysproxy = path.join(__dirname, '../bin/sysproxy.exe')
-const service_bin_exe = path.join(__dirname, '../bin/service.exe')
-const service_bin_xml = path.join(__dirname, '../bin/service.xml')
-const bin_wintun = path.join(__dirname, '../bin/wintun.dll')
-const bin_clash_config = path.join(__dirname, '../bin/config.yaml')
-const bin_mmdb = path.join(__dirname, '../bin/Country.mmdb')
+const service_core = path.join(__dirname, '../../bin/clash-core.exe')
+const service_core_mac = path.join(__dirname, '../../bin/clash-core')
+const sysproxy = path.join(__dirname, '../../bin/sysproxy.exe')
+const bin_clash_config = path.join(__dirname, '../../bin/config.yaml')
+const bin_mmdb = path.join(__dirname, '../../bin/Country.mmdb')
 
 function mk_home_dir(home_dir) {
     exists(home_dir, function (exists) {
@@ -113,12 +107,6 @@ function copy_service() {
                 });
             } else {
                 cp(service_core, clash_core_win, () => {
-                });
-                cp(service_bin_exe, service_run, () => {
-                });
-                cp(service_bin_xml, service_config, () => {
-                });
-                cp(bin_wintun, wintun, () => {
                 });
             }
         }
@@ -214,7 +202,7 @@ function createWindow(windowTitle, iconPath) {
     Menu.setApplicationMenu(null);
     // Create the browser window.
     const mainWindow = new BrowserWindow({
-        width: 1200,//460, //
+        width: 460, //1200,//
         height: 900,
         frame: false, // 隐藏标题栏
         transparent: true,  //背景透明
@@ -234,7 +222,7 @@ function createWindow(windowTitle, iconPath) {
     mainWindow.loadFile('src/index.html');
 
     // Open the DevTools.
-    mainWindow.webContents.openDevTools();
+    // mainWindow.webContents.openDevTools();
 
     let image;
     if (process.platform === 'darwin') {
@@ -938,10 +926,10 @@ app.whenReady().then(() => {
 
     ipcMain.on('core:start', () => {
         if (process.platform === 'darwin') {
-            execFile(clash_core_mac, ['-d', home_dir], () => {
+            exec(clash_core_mac + ' -d ' + home_dir, () => {
             })
         } else {
-            execFile(clash_core_win, ['-d', home_dir], () => {
+            exec(clash_core_win + ' -d ' + home_dir, () => {
             })
         }
     })
@@ -1087,43 +1075,43 @@ app.whenReady().then(() => {
         });
     })
 
-    ipcMain.on('service:Install', (event) => {
-        exec(service_run + ' install')
-    })
+    // ipcMain.on('service:Install', (event) => {
+    //     exec(service_run + ' install')
+    // })
+    //
+    // ipcMain.on('service:Uninstall', (event) => {
+    //     exec(service_run + ' uninstall')
+    // })
+    //
+    // ipcMain.on('service:Start', (event) => {
+    //     exec(service_run + ' start')
+    // })
+    //
+    // ipcMain.on('service:Stop', (event) => {
+    //     exec(service_run + ' stop')
+    // })
 
-    ipcMain.on('service:Uninstall', (event) => {
-        exec(service_run + ' uninstall')
-    })
-
-    ipcMain.on('service:Start', (event) => {
-        exec(service_run + ' start')
-    })
-
-    ipcMain.on('service:Stop', (event) => {
-        exec(service_run + ' stop')
-    })
-
-    ipcMain.handle('service:reloadConfig', () => {
-        return new Promise((resolve, reject) => {
-            core_delete(() => {
-            });
-            let url = 'http://127.0.0.1:9090/configs'
-            let data = {'path': service_config}
-            let request = net.request({
-                url: url,
-                method: 'PUT',
-            });
-
-            request.write(JSON.stringify(data))
-
-            request.end();
-
-            request.on('response', (response) => {
-                resolve(response.statusCode)
-            });
-
-        });
-    })
+    // ipcMain.handle('service:reloadConfig', () => {
+    //     return new Promise((resolve, reject) => {
+    //         core_delete(() => {
+    //         });
+    //         let url = 'http://127.0.0.1:9090/configs'
+    //         let data = {'path': service_config}
+    //         let request = net.request({
+    //             url: url,
+    //             method: 'PUT',
+    //         });
+    //
+    //         request.write(JSON.stringify(data))
+    //
+    //         request.end();
+    //
+    //         request.on('response', (response) => {
+    //             resolve(response.statusCode)
+    //         });
+    //
+    //     });
+    // })
 
     ipcMain.handle('yaml:readYaml', () => {
         return new Promise((resolve, reject) => {
@@ -1242,8 +1230,8 @@ function exit_all() {
         });
         exec(sysproxy + ' off', () => {
         });
-        exec(service_run + ' stop')
-        exec(service_run + ' uninstall')
+        // exec(service_run + ' stop')
+        // exec(service_run + ' uninstall')
     } else {
         sys_proxy(false);
         exec('killall -m clash-core', () => {
