@@ -1,6 +1,6 @@
 module.exports = {
     packagerConfig: {
-        icon: '/src/config/okanc'
+        icon: 'src/config/ewkuai'
     },
     plugins: [],
     rebuildConfig: {},
@@ -8,22 +8,14 @@ module.exports = {
         {
             name: '@electron-forge/maker-squirrel',
             config: {
-                icon: '/src/config/ewkuai.ico',
-                setupIcon: '/src/config/ewkuai.ico',
-            },
-        },
-        {
-            name: '@electron-forge/maker-deb',
-            config: {
-                options: {
-                    icon: '/src/config/ewkuai.png'
-                }
+                icon: 'src/config/ewkuai.ico',
+                setupIcon: 'src/config/ewkuai.ico',
             },
         },
         {
             name: '@electron-forge/maker-dmg',
             config: {
-                icon: '/src/config/ewkuai.icns',
+                icon: 'src/config/ewkuai.icns',
             },
         },
     ],

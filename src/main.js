@@ -202,7 +202,7 @@ function createWindow(windowTitle, iconPath) {
     Menu.setApplicationMenu(null);
     // Create the browser window.
     const mainWindow = new BrowserWindow({
-        width: 1200,//460, //
+        width: 460, //1200,//
         height: 900,
         frame: false, // 隐藏标题栏
         transparent: true,  //背景透明
@@ -222,7 +222,7 @@ function createWindow(windowTitle, iconPath) {
     mainWindow.loadFile('src/index.html');
 
     // Open the DevTools.
-    mainWindow.webContents.openDevTools();
+    // mainWindow.webContents.openDevTools();
 
     let image;
     if (process.platform === 'darwin') {
@@ -574,7 +574,7 @@ app.whenReady().then(() => {
     })
 
     ipcMain.handle('login:getAccount', (event) => {
-        return read_file(vertif)
+        return read_file(vertif);
     })
 
     ipcMain.on('login:saveAccount', (event, args) => {
