@@ -926,7 +926,7 @@ function click_menu(obj) {
             document.getElementById('plan-row').innerHTML = '';
             document.getElementById('menu-body').style.display = 'none';
             document.getElementById('shop-page').style.display = '';
-            document.getElementById('back-btn').setAttribute('onclick', 'back_menu()');
+            document.getElementById('back-btn').setAttribute('onclick', 'back_home()');
             shop();
             break;
     }
