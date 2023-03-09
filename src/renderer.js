@@ -1,5 +1,6 @@
 let flag_arr = [];
 let user_money;
+let class_level;
 let ssrSubToken;
 let user_reg_date;
 let global_mode = false;
@@ -456,7 +457,7 @@ function getServer() {
                 for (let i = 0; i < server_list.length; i++) {
                     let server_div = document.createElement('div');
                     server_div.className = 'd-flex align-items-center btn-box btn-yan2 jie';
-                    server_div.setAttribute('ondblclick', 'selectServer(this, true)');
+                    server_div.setAttribute('onclick', 'selectServer(this, true)');
                     server_div.innerHTML = '<p style="width: 80%;margin: 0 20px;"><img src="' + flag_Regular(server_list[i]) + '" style="margin-right: 10px;width: 28px;height: 28px;border-radius: 25%;">' + server_list[i] + '</p>';
                     server_body.appendChild(server_div);
                 }
@@ -791,6 +792,7 @@ function menu_page(state) {
     window.indexAPI.getUserInfo().then((result) => {
         user_reg_date = result['info']['user']['reg_date'];
         user_money = result['info']['user']['money'];
+        class_level = result['info']['user']['class'];
         document.getElementById('user-mail').innerHTML = '<img src="assets/img/y/icon7.png" style="height: 15px;"><img src="assets/img/y/jiantou.png" style="margin-left: 10px;height: 12px;margin-right: 10px;">' + result['info']['user']['email'];
         document.getElementById('user-wallet').innerHTML = '<img src="assets/img/y/iconx8.png" style="height: 15px;"><img src="assets/img/y/jiantou.png" style="margin-left: 10px;height: 12px;margin-right: 10px;">' + `${result['info']['user']['money']}元`;
         let date = new Date(result['info']['user']['expire_in']);
@@ -843,7 +845,7 @@ function click_menu(obj) {
             document.getElementById('back-btn').setAttribute('onclick', 'back_menu()');
             break;
         case 'domain':
-            window.indexAPI.goUrl('/user');
+            window.indexAPI.goUrl('');
             break;
         case 'change-pwd':
             document.getElementById('menu-body').style.display = 'none';
@@ -991,6 +993,13 @@ function shop() {
                 }
             }
         }
+        if (class_level > 0) {
+            for (let i = list.length - 1; i >= 0; i--) {
+                if (list[i]['name'].includes("试用")) {
+                    list.splice(i, 1);
+                }
+            }
+        }
         for (let i = 0; i < list.length; i ++) {
             if (!list[i]['name'].includes('流量包')) {
                 index ++;
@@ -1044,6 +1053,36 @@ function select_payment(obj) {
     obj.className = `${obj.className}-active`;
 }
 
+function buy_wallet (state) {
+    window.indexAPI.payWallet(shop_id).then((result) => {
+        if (result['ret'] === 1) {
+            Swal.fire({
+                text: state === 1 ? '使用余额购买成功！' : '购买成功！',
+                width: '220px',
+                timer: 1800,
+                showConfirmButton: false,
+                backdrop: `
+                    rgba(0,0,0,0.4)
+                `
+            }).then(() => {
+                window.systemAPI.sysProxyOff();
+                global_mode = false;
+                home_page();
+            });
+        } else {
+            Swal.fire({
+                text: `${result['msg']}`,
+                width: '220px',
+                timer: 1800,
+                showConfirmButton: false,
+                backdrop: `
+                    rgba(0,0,0,0.4)
+                `
+            });
+        }
+    });
+}
+
 function buy() {
     if (price === null || price === '' || price === undefined) {
         Swal.fire({
@@ -1070,49 +1109,36 @@ function buy() {
         return;
     }
     loading_frame('请求中...');
-    let res = user_money - price;
-    if (res >= 0) {
-        window.indexAPI.payWallet(shop_id).then((result) => {
-            if (result['ret'] === 1) {
-                Swal.fire({
-                    text: '使用余额购买成功！',
-                    width: '220px',
-                    timer: 1800,
-                    showConfirmButton: false,
-                    backdrop: `
-                    rgba(0,0,0,0.4)
-                `
-                }).then(() => {
-                    window.systemAPI.sysProxyOff();
-                    global_mode = false;
-                    home_page();
-                });
-            } else {
-                Swal.fire({
-                    text: `${result['msg']}`,
-                    width: '220px',
-                    timer: 1800,
-                    showConfirmButton: false,
-                    backdrop: `
-                    rgba(0,0,0,0.4)
-                `
-                });
-            }
-        });
+    let res = price - user_money;
+    if (res <= 0) {
+        buy_wallet(1);
     } else {
-        window.indexAPI.payPurchase(price, type).then((result) => {
+        window.indexAPI.payPurchase(res, type).then((result) => {
             if (result['ret'] === 1) {
-                Swal.close();
                 if (result['type'] === 'url') {
                     const open_url = window.open(result['url'], '_blank', 'width=650,height=850,menubar=no,toolbar=no,status=no,scrollbars=no');
                     const timer = setInterval(function () {
                         if (open_url.closed) {
                             clearInterval(timer);
-                            window.systemAPI.sysProxyOff();
-                            global_mode = false;
-                            home_page();
+                            window.indexAPI.MoneyInfo().then((r) => {
+                                if (r['money'] !== user_money) {
+                                    buy_wallet(0);
+                                } else {
+                                    Swal.fire({
+                                        text: '取消购买',
+                                        width: '220px',
+                                        timer: 1500,
+                                        showConfirmButton: false,
+                                        backdrop: `
+                                            rgba(0,0,0,0.4)
+                                            `
+                                    });
+                                }
+                            });
                         }
                     }, 1000);
+                } else {
+                    Swal.close();
                 }
             } else {
                 Swal.fire({

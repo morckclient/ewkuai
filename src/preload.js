@@ -79,6 +79,9 @@ contextBridge.exposeInMainWorld('indexAPI', {
     payPurchase: (price, type) => ipcRenderer.invoke('index:payPurchase', [price, type]).then((result) => {
         return result
     }),
+    MoneyInfo: () => ipcRenderer.invoke('index:MoneyInfo').then((result) => {
+        return result
+    }),
     getStorePlanForID: (id) => ipcRenderer.invoke('index:getStorePlanForID', id).then((result) => {
         return result
     }),

@@ -214,7 +214,7 @@ function createWindow(windowTitle, iconPath) {
     Menu.setApplicationMenu(null);
     // Create the browser window.
     const mainWindow = new BrowserWindow({
-        width: 460, //1200,//
+        width: 1200,//460, //
         height: 900,
         frame: false, // 隐藏标题栏
         transparent: true,  //背景透明
@@ -234,7 +234,7 @@ function createWindow(windowTitle, iconPath) {
     mainWindow.loadFile('src/index.html');
 
     // Open the DevTools.
-    //mainWindow.webContents.openDevTools();
+    mainWindow.webContents.openDevTools();
 
     let image;
     if (process.platform === 'darwin') {
@@ -882,6 +882,16 @@ app.whenReady().then(() => {
             let postData = `price=${args[0]}&type=${args[1]}`;
             read_file(auth).then((result) => {
                 req_post_auth(domainUrl + '/user/payment/purchase?' + postData, result, (result) => {
+                    resolve(result);
+                });
+            });
+        })
+    })
+
+    ipcMain.handle('index:MoneyInfo', (event) => {
+        return new Promise((resolve, reject) => {
+            read_file(auth).then((result) => {
+                req_get(domainUrl + '/user/money', {'cookie': result}, 'application/json', (result) => {
                     resolve(result);
                 });
             });
