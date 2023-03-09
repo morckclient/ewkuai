@@ -123,6 +123,42 @@ function sign_up_page() {
     mail_list();
 }
 
+function forget_page() {
+    document.body.innerHTML = '<div id="header-close" class="header-close close-black" style="margin-top: 8px;">\n' +
+        '    <button style="border: none; background: url(assets/img/mini-fill.png);width:24px;height:24px; margin-right: 10px;"\n' +
+        '            onclick="mini_win()">\n' +
+        '    </button>\n' +
+        '    <button style="border: none; background: url(assets/img/close-fill.png);width:24px;height:24px; margin-right: 10px;"\n' +
+        '            onclick="exit_win()">\n' +
+        '    </button>\n' +
+        '</div>\n' +
+        '    <div class="login_bg" style="width: 100%;height: 900px;">\n' +
+        '        <div class="d-sm-flex align-items-sm-center logo-box">\n' +
+        '            <h1>找回密码<img src="assets/img/img_logo.png" style="width: 70px;margin-left: 20px;"></h1>\n' +
+        '        </div>\n' +
+        '        <div class="login_box">\n' +
+        '            <div style="font-size: 1.1em;margin: 30px 35px 30px 35px;color: #4e5e6d;">\n' +
+        '                    <p>我们将会发送一封包含重置密码链接的邮件到您的邮箱。</p>\n' +
+        '            </div>\n' +
+        '            <div class="d-sm-flex justify-content-sm-center align-items-sm-center input-box">\n' +
+        '                <div class="d-flex d-sm-flex align-items-center align-items-sm-center text-input">\n' +
+        '                    <div style="display: inherit;width: 60px;"><img src="assets/img/iconx3.png" style="float: left;margin: auto;width: 20px;"><img src="assets/img/iconx0.png" style="height: 14px;float: left;margin: auto;margin-left: 1px;"></div><input id="mail" type="text" class="input-mini" placeholder="请输入邮箱" style="width: 40%;">\n' +
+        '                    <div class="dropdown" style="text-align: right;"><button class="btn dropdown-toggle dropdown-box" aria-expanded="false" data-bs-toggle="dropdown" type="button" id="mail-show">@gmail.com</button>\n' +
+        '                        <div class="dropdown-menu" id="mail-item"></div>\n' +
+        '                    </div>\n' +
+        '                </div>\n' +
+        '            </div>\n' +
+        '            <div class="d-sm-flex justify-content-sm-center align-items-sm-center input-box"><button id="sign-btn" class="btn btn-primary btn-box btn-login" onclick="forget_pwd()" style="margin-top: 48px;">找回密码</button></div>\n' +
+        '             <div class="d-sm-flex input-box" style="margin-top: 20px;font-size: 18px;">\n' +
+        '                <div style="text-align: center;">\n' +
+        '                    <p><a href="#" onclick="login_page()">返回登录</a></p>\n' +
+        '                </div>\n' +
+        '            </div>\n' +
+        '        </div>\n' +
+        '    </div>';
+    mail_list();
+}
+
 function mail_list() {
     //邮箱后缀
     const mail_list = ['@gmail.com', '@qq.com', '@outlook.com', '@163.com', '@126.com', '@yeah.net', '@foxmail.com'];
@@ -260,13 +296,13 @@ function login_page() {
         '                <div class="d-flex d-sm-flex align-items-center align-items-sm-center text-input">\n' +
         '                    <div style="display: inherit;width: 60px;"><img src="assets/img/iconx5.png" style="float: left;margin: auto;width: 20px;"><img src="assets/img/iconx0.png" style="height: 14px;float: left;margin: auto;margin-left: 1px;"></div><input id="login-pwd" type="password" class="input-mini" placeholder="请输入密码">\n' +
         '                    <div style="display: inherit;width: 60px;">\n' +
-        '                        <div style="-webkit-app-region: no-drag;"><img src="assets/img/iconx7.png" style="float: left;margin: auto;width: 30px;" onclick="show_pwd()"></div>\n' +
+        '                        <div style="-webkit-app-region: no-drag;"><img src="assets/img/iconx7.png" style="float: left;margin: auto;width: 30px;" onclick="show_pwd(this)"></div>\n' +
         '                    </div>\n' +
         '                </div>\n' +
         '            </div>\n' +
         '            <div class="d-sm-flex justify-content-sm-center align-items-sm-center input-box" style="margin-top: 220px;"><button id="login-btn" class="btn btn-primary btn-box btn-login" type="button" onclick="login()">登录</button></div>\n' +
         '            <div class="d-sm-flex input-box" style="margin-top: 30px;font-size: 18px;">\n' +
-        '                <div style="width: 40%;float: left;text-align: left;"><a href="#" onclick="forget_pwd()">忘记密码？</a></div>\n' +
+        '                <div style="width: 40%;float: left;text-align: left;"><a href="#" onclick="forget_page()">忘记密码？</a></div>\n' +
         '                <div style="float: right;text-align: right;width: 60%;">\n' +
         '                    <p>没有账号？<a href="#" onclick="sign_up_page()">前往注册</a></p>\n' +
         '                </div>\n' +
@@ -274,20 +310,51 @@ function login_page() {
         '        </div>\n' +
         '    </div>';
     get_acc();
+
+    window.addEventListener('keydown', (event) => {
+        if (event.key === 'Enter') {
+            document.getElementById('login-btn').click();
+        }
+    });
 }
 
-function show_pwd() {
+function show_pwd(obj) {
     let pwd = document.getElementById('login-pwd');
     if (pwd.type === 'password') {
         pwd.type = 'text';
+        obj.src = 'assets/img/iconx6.png';
     } else {
         pwd.type = 'password';
+        obj.src = 'assets/img/iconx7.png';
     }
 }
 
 function forget_pwd() {
-    window.indexAPI.getDomain().then((result) => {
-        window.open(result + '/password/reset', '_blank', 'width=420,height=840,menubar=no,toolbar=no,status=no,scrollbars=no')
+    let email = document.getElementById('mail');
+    let email_show = document.getElementById('mail-show');
+    if (email.value === '' || email.value === null) {
+        email.className = 'mint';
+        email.focus();
+        return;
+    } else {
+        email.style.border = '0';
+    }
+    loading_frame('发送中...');
+    let mail = email.value + email_show.innerText;
+    window.loginAPI.resetPassword(mail).then((result) => {
+        Swal.fire({
+            text: result['msg'],
+            width: '240px',
+            timer: 3000,
+            showConfirmButton: false,
+            backdrop: `
+                    rgba(0,0,0,0.4)
+                `
+        }).then(() => {
+            if (result['ret'] === 1) {
+                login_page();
+            }
+        });
     });
 }
 
@@ -298,7 +365,7 @@ function login() {
         if (input[i].value === '') {
             input[i].className = 'mint';
             input[i].focus();
-            return
+            return;
         } else {
             input[i].style.border = '0';
         }

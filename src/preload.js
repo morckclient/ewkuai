@@ -116,7 +116,7 @@ contextBridge.exposeInMainWorld('loginAPI', {
     Register: (email, name, pwd, passwd, repasswd, emailcode) => ipcRenderer.invoke('login:register', [email, name, pwd, passwd, repasswd, emailcode]).then((result) => {
         return result
     }),
-    resetPassword: (email, pwd, verify) => ipcRenderer.invoke('login:resetPassword', [email, pwd, verify]).then((result) => {
+    resetPassword: (email) => ipcRenderer.invoke('login:resetPassword', email).then((result) => {
         return result
     }),
     logout: () => ipcRenderer.send('login:logout'),

@@ -202,7 +202,7 @@ function createWindow(windowTitle, iconPath) {
     Menu.setApplicationMenu(null);
     // Create the browser window.
     const mainWindow = new BrowserWindow({
-        width: 460, //1200,//
+        width: 1200,//460, //
         height: 900,
         frame: false, // 隐藏标题栏
         transparent: true,  //背景透明
@@ -222,7 +222,7 @@ function createWindow(windowTitle, iconPath) {
     mainWindow.loadFile('src/index.html');
 
     // Open the DevTools.
-    // mainWindow.webContents.openDevTools();
+    mainWindow.webContents.openDevTools();
 
     let image;
     if (process.platform === 'darwin') {
@@ -356,7 +356,8 @@ function req_post_auth(url, cookie, callback) {
                 ret['status_code'] = response.statusCode;
                 callback(ret);
             } catch (e) {
-                req_post_auth(url, cookie, () => {});
+                req_post_auth(url, cookie, () => {
+                });
             }
 
         });
@@ -386,7 +387,8 @@ function req_get(url, header_data, conn_type, callback) {
                 ret['status_code'] = response.statusCode;
                 callback(ret);
             } catch (e) {
-                req_get(url, header_data, conn_type, () => {});
+                req_get(url, header_data, conn_type, () => {
+                });
             }
         });
     });
@@ -483,7 +485,7 @@ app.whenReady().then(() => {
     const iconPath = path.join(__dirname, './config/ewkuai.png')
     const windowTitle = 'Ewkuai';
     const domainUrl = 'https://ewkuai.com'
-    const version = 'v1.0.0'
+    const version = 'v1.0.1'
     createWindow(windowTitle, iconPath)
 
     exit_all()
@@ -646,7 +648,6 @@ app.whenReady().then(() => {
     })
 
     ipcMain.handle('login:register', (event, args) => {
-        //let postData = 'email=' + args[0] + '&name=' + args[1] + '&passwd=' + args[2] + '&repasswd=' + args[3] + '&code=0&emailcode=' + args[4];
         let postData = JSON.stringify({
             'email': args[0],
             'name': args[1],
@@ -658,39 +659,28 @@ app.whenReady().then(() => {
         return new Promise((resolve, reject) => {
             let url = domainUrl + '/auth/register'
             req_post(url, postData, 'application/json', (result) => {
-                resolve(result)
-            })
-        })
-    })
+                resolve(result);
+            });
+        });
+    });
 
     ipcMain.handle('login:resetPassword', (event, args) => {
-        const postData = 'email=' + args[0] + '&password=' + args[1] + '&email_code=' + args[2]
         return new Promise((resolve, reject) => {
-            req_post(domainUrl + '/api/v1/passport/auth/forget', postData, 'application/x-www-form-urlencoded', (result) => {
-                if (result['status_code'] === 200) {
-                    resolve(null)
-                } else if (result['status_code'] === 422) {
-                    let item = ''
-                    for (let key in result['errors']) {
-                        item += ' ' + result['errors'][key];
-                    }
-                    resolve(item)
-                } else {
-                    resolve(result['message'])
-                }
-            })
-        })
-    })
+            req_post(domainUrl + '/password/reset?email=' + args, '', 'application/x-www-form-urlencoded; charset=UTF-8', (result) => {
+                resolve(result);
+            });
+        });
+    });
 
     ipcMain.on('index:set-title', (event) => {
         const webContents = event.sender
         const win = BrowserWindow.fromWebContents(webContents)
-        win.setTitle(windowTitle)
-    })
+        win.setTitle(windowTitle);
+    });
 
     ipcMain.on('index:goUrl', (event, args) => {
-        exec('start ' + domainUrl + args)
-    })
+        exec('start ' + domainUrl + args);
+    });
 
     ipcMain.handle('index:getDomain', (event) => {
         return new Promise((resolve, reject) => {
