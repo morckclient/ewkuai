@@ -36,11 +36,11 @@ const mmdb = path.join(home_dir, 'Country.mmdb')
 
 const i18n = path.join(__dirname, 'config/i18n')
 const flag = path.join(__dirname, 'assets/img/flag')
-const service_core = path.join(__dirname, '../../bin/clash-core.exe')
-const service_core_mac = path.join(__dirname, '../../bin/clash-core')
-const sysproxy = path.join(__dirname, '../../bin/sysproxy.exe')
-const bin_clash_config = path.join(__dirname, '../../bin/config.yaml')
-const bin_mmdb = path.join(__dirname, '../../bin/Country.mmdb')
+const service_core = path.join(__dirname, '../bin/clash-core.exe')
+const service_core_mac = path.join(__dirname, '../bin/clash-core')
+const sysproxy = path.join(__dirname, '../bin/sysproxy.exe')
+const bin_clash_config = path.join(__dirname, '../bin/config.yaml')
+const bin_mmdb = path.join(__dirname, '../bin/Country.mmdb')
 
 function mk_home_dir(home_dir) {
     exists(home_dir, function (exists) {
