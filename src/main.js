@@ -226,8 +226,8 @@ function createWindow(windowTitle, iconPath) {
 
     let image;
     if (process.platform === 'darwin') {
+        mainWindow.setSize(368, 720);
         mainWindow.webContents.on("did-finish-load", () => {
-            mainWindow.setSize(368, 720);
             mainWindow.webContents.setZoomFactor(0.8);
         })
         image = nativeImage.createFromPath(path.join(__dirname, 'config/ewkuaiTemplate@2x.png'));
@@ -678,7 +678,15 @@ app.whenReady().then(() => {
     });
 
     ipcMain.on('index:goUrl', (event, args) => {
-        exec('start ' + domainUrl + args);
+        switch (process.platform) {
+            case "darwin":
+                exec(`open ${domainUrl + args}`);
+                break;
+            case "win32":
+                exec(`start ${domainUrl + args}`);
+                break;
+        }
+
     });
 
     ipcMain.handle('index:getDomain', (event) => {
