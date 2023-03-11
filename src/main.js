@@ -216,7 +216,7 @@ function createWindow(windowTitle, iconPath) {
             nodeIntegration: true,     //设置能在页面使用nodejs的API
             preload: path.join(__dirname, 'preload.js'),
         }
-    })
+    });
 
     // and load the index.html of the app.
     mainWindow.loadFile('src/index.html');
@@ -229,7 +229,7 @@ function createWindow(windowTitle, iconPath) {
         mainWindow.setSize(368, 720);
         mainWindow.webContents.on("did-finish-load", () => {
             mainWindow.webContents.setZoomFactor(0.8);
-        })
+        });
         image = nativeImage.createFromPath(path.join(__dirname, 'config/ewkuaiTemplate@2x.png'));
         image.setTemplateImage(true);
         app.dock.hide();
@@ -242,12 +242,18 @@ function createWindow(windowTitle, iconPath) {
 
     if (process.platform === 'darwin') {
         tray.on('click', () => {       //点击图标的响应事件，这里是切换主窗口的显示和隐藏
-            mainWindow.show()
-        })
+            mainWindow.webContents.on("did-finish-load", () => {
+                mainWindow.webContents.setZoomFactor(0.8);
+            });
+            mainWindow.show();
+        });
     } else {
         tray.on('double-click', () => {       //点击图标的响应事件，这里是切换主窗口的显示和隐藏
-            mainWindow.show()
-        })
+            mainWindow.webContents.on("did-finish-load", () => {
+                mainWindow.webContents.setZoomFactor(0.8);
+            });
+            mainWindow.show();
+        });
     }
 
     tray.on('right-click', () => {    //右键点击图标时，出现的菜单，通过Menu.buildFromTemplate定制。
@@ -264,53 +270,59 @@ function createWindow(windowTitle, iconPath) {
                 }
             }
         ])
-        tray.popUpContextMenu(menuConfig)
-    })
+        tray.popUpContextMenu(menuConfig);
+    });
 
     ipcMain.on('mainWindow:close', () => {
-        mainWindow.hide()
-    })
+        mainWindow.hide();
+    });
 
     ipcMain.on('mainWindow:mini', () => {
-        mainWindow.minimize()
-    })
+        mainWindow.minimize();
+    });
 
     ipcMain.on('mainWindow:exit', () => {
-        app.quit()
-    })
+        app.quit();
+    });
 
     ipcMain.on('mainWindow:change', (event, args) => {
-        mainWindow.setSize(args[0], args[1])
-    })
+        mainWindow.setSize(args[0], args[1]);
+    });
 
     ipcMain.handle('mainWindow:getOpenSystem', (event) => {
         return app.getLoginItemSettings().openAtLogin
-    })
+    });
 
     ipcMain.on('mainWindow:openSystem', (event, status) => {
         if (!app.isPackaged) {
             app.setLoginItemSettings({
                 openAtLogin: status,
                 path: process.execPath
-            })
+            });
         } else {
             app.setLoginItemSettings({
                 openAtLogin: status
-            })
+            });
         }
-    })
+    });
 
     ipcMain.on('login:logout', () => {
         unlink(vertif, () => {
         })
         exit_all();
         mainWindow.reload();
-    })
+        mainWindow.webContents.on("did-finish-load", () => {
+            mainWindow.webContents.setZoomFactor(0.8);
+        });
+    });
 
     ipcMain.on('login:logNoOut', () => {
         exit_all();
         mainWindow.reload();
-    })
+        mainWindow.webContents.on("did-finish-load", () => {
+            mainWindow.webContents.setZoomFactor(0.8);
+        });
+    });
 }
 
 function req_post(url, postData, conn_type, callback) {
