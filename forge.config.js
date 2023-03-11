@@ -1,22 +1,22 @@
 module.exports = {
-    packagerConfig: {
-        icon: 'src/config/ewkuai'
+  packagerConfig: {},
+  rebuildConfig: {},
+  makers: [
+    {
+      name: '@electron-forge/maker-squirrel',
+      config: {},
     },
-    plugins: [],
-    rebuildConfig: {},
-    makers: [
-        {
-            name: '@electron-forge/maker-squirrel',
-            config: {
-                icon: 'src/config/ewkuai.ico',
-                setupIcon: 'src/config/ewkuai.ico',
-            },
-        },
-        {
-            name: '@electron-forge/maker-dmg',
-            config: {
-                icon: 'src/config/ewkuai.icns',
-            },
-        },
-    ],
+    {
+      name: '@electron-forge/maker-zip',
+      platforms: ['darwin'],
+    },
+    {
+      name: '@electron-forge/maker-deb',
+      config: {},
+    },
+    {
+      name: '@electron-forge/maker-rpm',
+      config: {},
+    },
+  ],
 };

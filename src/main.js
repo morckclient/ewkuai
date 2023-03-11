@@ -1,8 +1,9 @@
-const {app, BrowserWindow, Menu, Tray, ipcMain, net, session, nativeImage} = require('electron')
+const {app, BrowserWindow, Menu, Tray, ipcMain, net, session, nativeImage, dialog} = require('electron')
 const {exists, mkdir, writeFile, readdir, cp, readFileSync, writeFileSync, unlink} = require('fs');
 const os = require('os');
 const path = require('path');
 const yaml = require('js-yaml');
+const prompt = require('sudo-prompt');
 const {exec, execFile} = require('child_process');
 
 app.on('ready', () => {
@@ -17,7 +18,7 @@ const prompt_options = {
 const sys_path = os.homedir()
 let home_dir
 if (process.platform === 'darwin') {
-    home_dir = path.join(sys_path, 'Morck')
+    home_dir = path.join(sys_path, 'Ewkuai')
 } else {
     home_dir = path.join(sys_path, 'AppData\\Local\\Morck')
 }
@@ -155,7 +156,6 @@ function sys_proxy(status, port) {
     networksetup -setproxybypassdomains "Thunderbolt Bridge" *.local、169.254/16、10.24
     `;
 
-
     const disable_proxy_cmd = `sudo networksetup -setwebproxystate "USB 10/100/1000 LAN" off;
     sudo networksetup -setsecurewebproxystate "USB 10/100/1000 LAN" off;
     sudo networksetup -setsocksfirewallproxystate "USB 10/100/1000 LAN" off;
@@ -226,6 +226,10 @@ function createWindow(windowTitle, iconPath) {
 
     let image;
     if (process.platform === 'darwin') {
+        mainWindow.webContents.on("did-finish-load", () => {
+            mainWindow.setSize(368, 720);
+            mainWindow.webContents.setZoomFactor(0.8);
+        })
         image = nativeImage.createFromPath(path.join(__dirname, 'config/ewkuaiTemplate@2x.png'));
         image.setTemplateImage(true);
         app.dock.hide();
@@ -256,7 +260,6 @@ function createWindow(windowTitle, iconPath) {
             }, {
                 label: '退出',
                 click: () => {
-                    exit_all();
                     app.quit();
                 }
             }
@@ -300,18 +303,14 @@ function createWindow(windowTitle, iconPath) {
     ipcMain.on('login:logout', () => {
         unlink(vertif, () => {
         })
-        exit_all()
-        mainWindow.reload()
+        exit_all();
+        mainWindow.reload();
     })
 
     ipcMain.on('login:logNoOut', () => {
-        exit_all()
-        mainWindow.reload()
+        exit_all();
+        mainWindow.reload();
     })
-
-    process.on('exit', function () {
-        exit_all()
-    });
 }
 
 function req_post(url, postData, conn_type, callback) {
@@ -486,9 +485,9 @@ app.whenReady().then(() => {
     const windowTitle = 'Ewkuai';
     const domainUrl = 'https://ewkuai.com'
     const version = 'v1.0.1'
-    createWindow(windowTitle, iconPath)
+    createWindow(windowTitle, iconPath);
 
-    exit_all()
+    exit_all();
 
     let core_path = path.join(home_dir, 'clash-core')
     execFile(core_path, ['-d', home_dir], () => {
@@ -512,7 +511,7 @@ app.whenReady().then(() => {
 
     ipcMain.on('system:sysProxyOff', (event) => {
         if (process.platform === 'darwin') {
-            sys_proxy(false)
+            sys_proxy(false, 0)
         } else {
             exec(sysproxy + ' off', () => {
             });
@@ -1206,25 +1205,29 @@ app.on('window-all-closed', function () {
     }
 })
 
-// In this file you can include the rest of your app's specific main process
-// code. You can also put them in separate files and require them here.
-
-app.on('will-quit', () => {
-    // 注销所有快捷键
-    //globalShortcut.unregisterAll()
-})
-
 function exit_all() {
-    if (process.platform !== 'darwin') {
+    if (process.platform === 'darwin') {
+        sys_proxy(false, 0);
+        exec('killall -m clash-core', () => {
+        });
+
+    } else {
         exec('taskkill /f /im clash-core.exe', () => {
         });
         exec(sysproxy + ' off', () => {
         });
-        // exec(service_run + ' stop')
-        // exec(service_run + ' uninstall')
-    } else {
-        sys_proxy(false);
-        exec('killall -m clash-core', () => {
-        });
     }
 }
+
+let isQuitting = false;
+app.on('before-quit', (event) => {
+    if (!isQuitting) {
+        event.preventDefault();
+        exit_all()
+        setTimeout(() => {
+            isQuitting = true;
+            app.quit();
+        }, 1000);
+    }
+});
+
